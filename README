@@ -4,10 +4,12 @@ an optional command in it.
 If the current directory contains a file `.tabfile` this one is executed
 instead (see below).
 
+Download the latest version from: https://github.com/bartTC/tab
+
 Installation:
 -------------
 
-Install it with pip: `pip install tab` or if you prefer the manual way,
+Install it with pip: `pip install tab-osx` or if you prefer the manual way,
 copy the `tab` file into your `/usr/local/bin` and make it executable:
 
     cp tab /usr/local/bin
@@ -36,25 +38,25 @@ Example:
 Tabfile:
 --------
 
-    You can specify multiple `tab` actions in one file, to quickly open
-    multiple tabs with commands. Tabfile is an INI file, each tab is seperated
-    by a group called either `tab:<n>` or `window:<n>`.
+You can specify multiple `tab` actions in one file, to quickly open multiple
+tabs with commands. Tabfile is an INI file, each tab is seperated by a group
+called either `tab:<n>` or `window:<n>`.
 
-    You can specify options as 'name:', 'size:', and 'position:'. All other
-    lines are commands which will be executed.
+You can specify options as 'name:', 'size:', and 'position:'. All other
+lines are commands which will be executed.
 
-        [tab:1]                                     # Gulp Watcher
-        source ~/myproject/bin/activate
-        gulp watch
+    [tab:1]                                     # Gulp Watcher
+    source ~/myproject/bin/activate
+    gulp watch
 
-        [tab:2]                                     # Django Project
-        source ~/myproject/bin/activate
-        manage.py runserver
+    [tab:2]                                     # Django Project
+    source ~/myproject/bin/activate
+    manage.py runserver
 
-        [tab:3]                                     # A blank tab to work in
-        clear
+    [tab:3]                                     # A blank tab to work in
+    clear
 
-        [window:1]                                  # Vim Editor in a separate
-        size: 200x400                               # window.
-        position: 600x300
-        vim
+    [window:1]                                  # Vim Editor in a separate
+    size: 200x400                               # window.
+    position: 600x300
+    vim

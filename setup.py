@@ -5,7 +5,7 @@ from sys import exit
 long_description = open('README').read()
 
 setup(
-    name='tab',
+    name='tab-osx',
     version='1.0',
     description='Opens a new OS X Terminal window in the current directory and '
         'runs an optional command in it.',
