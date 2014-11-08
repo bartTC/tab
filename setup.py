@@ -14,9 +14,9 @@ setup(
     author_email='martin@mahner.org',
     url='https://github.com/bartTC/tab/',
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: Mac OS X',
+        'Operating System :: MacOS :: MacOS X',
         'Programming Language :: Python',
     ],
     packages=find_packages(),
