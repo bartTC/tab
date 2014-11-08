@@ -1,8 +1,17 @@
-tab - Opens a new OS X Terminal window with the current directory and runs
+tab - Opens a new OS X Terminal window in the current directory and runs
 an optional command in it.
 
 If the current directory contains a file `.tabfile` this one is executed
 instead (see below).
+
+Installation:
+-------------
+
+Install it with pip: `pip install tab` or if you prefer the manual way,
+copy the `tab` file into your `/usr/local/bin` and make it executable:
+
+    cp tab /usr/local/bin
+    chmod +x /usr/local/bin/tab
 
 Options:
 --------
@@ -28,7 +37,7 @@ Tabfile:
 --------
 
     You can specify multiple `tab` actions in one file, to quickly open
-    multiple tabs with commands. Tabfile is a INI file, each tab is seperated
+    multiple tabs with commands. Tabfile is an INI file, each tab is seperated
     by a group called either `tab:<n>` or `window:<n>`.
 
     You can specify options as 'name:', 'size:', and 'position:'. All other
