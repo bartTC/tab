@@ -1,0 +1,51 @@
+tab - Opens a new OS X Terminal window with the current directory and runs
+an optional command in it.
+
+If the current directory contains a file `.tabfile` this one is executed
+instead (see below).
+
+Options:
+--------
+
+    (no arguments) Opens a new Terminal tab and changes to the current
+                   directory.
+    -n: Window name of  the new tab
+    -w: Open a new window instead of a tab
+    -p: Position of the new window on screen in the format x,y (e.g 400,200)
+    -s: Size of the new window in the format w,h (e.g. 400,200)
+    -t: Path to a tabfile to execute.
+
+Example:
+--------
+
+    tab                                # Opens a new tab
+    tab vim                            # Opens vim in a new tab
+    tab -w -s 100x100 -p 400x700 vim   # Opens vim in a new window at the
+                                       # specified position and size
+    tab -t ~/Projects/project.tabfile  # Open the tabfile
+
+Tabfile:
+--------
+
+    You can specify multiple `tab` actions in one file, to quickly open
+    multiple tabs with commands. Tabfile is a INI file, each tab is seperated
+    by a group called either `tab:<n>` or `window:<n>`.
+
+    You can specify options as 'name:', 'size:', and 'position:'. All other
+    lines are commands which will be executed.
+
+        [tab:1]                                     # Gulp Watcher
+        source ~/myproject/bin/activate
+        gulp watch
+
+        [tab:2]                                     # Django Project
+        source ~/myproject/bin/activate
+        manage.py runserver
+
+        [tab:3]                                     # A blank tab to work in
+        clear
+
+        [window:1]                                  # Vim Editor in a separate
+        size: 200x400                               # window.
+        position: 600x300
+        vim
