@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2014 Martin Mahner <martin@mahner.org>
 #
@@ -87,7 +87,8 @@ Tabfile:
 
 import os
 import sys
-import ConfigParser
+import re
+import configparser
 from time import sleep
 from subprocess import Popen, PIPE
 from optparse import OptionParser, OptionGroup
@@ -126,7 +127,7 @@ parser.add_option_group(group)
 
 def osascript(scpt, args=[]):
      p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-     stdout, stderr = p.communicate(scpt)
+     stdout, stderr = p.communicate(scpt.encode('utf-8'))
      return stdout, stderr
 
 def get_config_items(config, groupname):
@@ -146,12 +147,12 @@ def opentab(window, scriptargs):
         script = """
         tell application "Terminal"
             activate
-            do script with command "cd %(wd)s"
+            do script with command "cd {wd}"
             do script "clear" in window 1
-            %(name)s
-            %(position)s
-            %(size)s
-            %(commands)s
+            {name}
+            {position}
+            {size}
+            {commands}
         end tell
         """
     else:
@@ -161,16 +162,16 @@ def opentab(window, scriptargs):
         end
         tell application "Terminal"
             activate
-            do script with command "cd %(wd)s" in window 1
+            do script with command "cd {wd}" in window 1
             do script "clear" in window 1
-            %(name)s
-            %(commands)s
+            {name}
+            {commands}
         end tell
         """
-    stdout, stderr = osascript(script % scriptargs)
+    stdout, stderr = osascript(script.format(**scriptargs))
 
     if stderr:
-        sys.stderr.write('Error in Applescript: %s\n' % stderr)
+        sys.stderr.write('Error in Applescript: {}\n'.format(stderr))
 
 # -----------------------------------------------------------------------------
 # Tabfile
@@ -181,7 +182,7 @@ local_tabfile = os.path.join(wd, '.tabfile')
 
 if options.tabfile:
     if not os.path.isfile(options.tabfile):
-        sys.stderr.write('Tabfile "%s" does not exist.\n' % options.tabfile)
+        sys.stderr.write('Tabfile "{}" does not exist.\n'.format(options.tabfile))
         sys.exit()
     tabfile = options.tabfile
 elif os.path.isfile(local_tabfile):
@@ -189,25 +190,25 @@ elif os.path.isfile(local_tabfile):
 
 if tabfile:
     scripts = []
-    config = ConfigParser.ConfigParser(allow_no_value=True)
+    config = configparser.ConfigParser(delimiters=('=',), allow_no_value=True)
     try:
         config.read(tabfile)
     except ConfigParser.ParsingError as e:
-        sys.stderr.write('Tabfile seem to be broken. Error was: %s\n' % e)
+        sys.stderr.write('Tabfile seem to be broken. Error was: {}\n'.format(e))
         sys.exit()
 
-    sys.stdout.write('Found tabfile in %s\n' % tabfile)
+    sys.stdout.write('Found tabfile in {}n'.format(tabfile))
 
     for groupname in config.sections():
         options, cmds = get_config_items(config, groupname)
         scriptargs = {
-            'name': options.get('name') and 'set custom title of window 1 to "%s"' % options['name'] or '',
-            'position': options.get('position') and 'set position of window 1 to {%s}' % options['position'] or '',
-            'size': options.get('size') and 'set size of window 1 to {%s}' % options['size'] or '',
+            'name': options.get('name') and 'set custom title of window 1 to "{}"'.format(options['name']) or '',
+            'position': options.get('position') and 'set position of window 1 to {}'.format(options['position']) or '',
+            'size': options.get('size') and 'set size of window 1 to {}'.format(options['size']) or '',
             'wd': wd,
         }
         if cmds:
-            scriptargs['commands'] = '\n'.join(['do script with command "%s" in window 1' % a for a in cmds])
+            scriptargs['commands'] = '\n'.join(['do script with command "{}" in window 1'.format(a) for a in cmds])
 
         window = groupname.startswith('window')
         sleep(1)  # Applescript gets irritated if you do too much at once
@@ -219,10 +220,10 @@ if tabfile:
 
 else:
     scriptargs = {
-        'name': options.name and 'set custom title of window 1 to "%s"' % options.name or '',
-        'position': options.position and 'set position of window 1 to {%s}' % options.position or '',
-        'size': options.size and 'set size of window 1 to {%s}' % options.size or '',
+        'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name) or '',
+        'position': options.position and 'set position of window 1 to {}'.format(options.position) or '',
+        'size': options.size and 'set size of window 1 to {}'.format(options.size) or '',
         'wd': wd,
-        'commands': '\n'.join(['do script with command "%s" in window 1' % a for a in args])
+        'commands': '\n'.join(['do script with command "" in window 1'.format(a) for a in args])
     }
     opentab(options.window, scriptargs)

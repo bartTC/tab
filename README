@@ -51,7 +51,8 @@ lines are commands which will be executed.
 
     [tab:2]                                     # Django Project
     source ~/myproject/bin/activate
-    manage.py runserver
+    manage.py runserver                         # Start the server
+    open http://127.0.0.1:8000/                 # Open web browser
 
     [tab:3]                                     # A blank tab to work in
     clear
