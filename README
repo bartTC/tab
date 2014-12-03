@@ -52,10 +52,10 @@ lines are commands which will be executed.
     [tab:2]                                     # Django Project
     source ~/myproject/bin/activate
     manage.py runserver                         # Start the server
-    open http://127.0.0.1:8000/                 # Open web browser
 
-    [tab:3]                                     # A blank tab to work in
-    clear
+    [tab:3]                                    
+    open http://127.0.0.1:8000/                 # Open web browser for above server
+    clear                                       # and have a blank tab to work in
 
     [window:1]                                  # Vim Editor in a separate
     size: 200x400                               # window.
