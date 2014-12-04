@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-from sys import exit
 
 long_description = open('README').read()
 
@@ -22,5 +21,4 @@ setup(
     packages=find_packages(),
     scripts=['tab'],
     include_package_data=True,
-
 )
