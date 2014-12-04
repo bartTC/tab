@@ -54,35 +54,36 @@ Example:
 
     tab                                # Opens a new tab
     tab vim                            # Opens vim in a new tab
-    tab -w -s 100x100 -p 400x700 vim   # Opens vim in a new window at the
+    tab -w -s 100,100 -p 400,700 vim   # Opens vim in a new window at the
                                        # specified position and size
     tab -t ~/Projects/project.tabfile  # Open the tabfile
 
 Tabfile:
 --------
 
-    You can specify multiple `tab` actions in one file, to quickly open
-    multiple tabs with commands. Tabfile is an INI file, each tab is seperated
-    by a group called either `tab:<n>` or `window:<n>`.
+You can specify multiple `tab` actions in one file, to quickly open multiple
+tabs with commands. Tabfile is an INI file, each tab is seperated by a group
+called either `tab:<n>` or `window:<n>`.
 
-    You can specify options as 'name:', 'size:', and 'position:'. All other
-    lines are commands which will be executed.
+You can specify options as 'name:', 'size:', and 'position:'. All other
+lines are commands which will be executed.
 
-        [tab:1]                                     # Gulp Watcher
-        source ~/myproject/bin/activate
-        gulp watch
+    [tab:1]                                     # Gulp Watcher
+    source ~/myproject/bin/activate
+    gulp watch
 
-        [tab:2]                                     # Django Project
-        source ~/myproject/bin/activate
-        manage.py runserver
+    [tab:2]                                     # Django Project
+    source ~/myproject/bin/activate
+    manage.py runserver                         # Start the server
 
-        [tab:3]                                     # A blank tab to work in
-        clear
+    [tab:3]
+    open http://127.0.0.1:8000/                 # Open web browser for above server
+    clear                                       # and have a blank tab to work in
 
-        [window:1]                                  # Vim Editor in a separate
-        size: 200x400                               # window.
-        position: 600x300
-        vim
+    [window:1]                                  # Vim Editor in a separate
+    size: 200,400                               # window.
+    position: 600,300
+    vim
 """
 
 import os

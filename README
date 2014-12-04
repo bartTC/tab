@@ -31,7 +31,7 @@ Example:
 
     tab                                # Opens a new tab
     tab vim                            # Opens vim in a new tab
-    tab -w -s 100x100 -p 400x700 vim   # Opens vim in a new window at the
+    tab -w -s 100,100 -p 400,700 vim   # Opens vim in a new window at the
                                        # specified position and size
     tab -t ~/Projects/project.tabfile  # Open the tabfile
 
@@ -53,11 +53,11 @@ lines are commands which will be executed.
     source ~/myproject/bin/activate
     manage.py runserver                         # Start the server
 
-    [tab:3]                                    
+    [tab:3]
     open http://127.0.0.1:8000/                 # Open web browser for above server
     clear                                       # and have a blank tab to work in
 
     [window:1]                                  # Vim Editor in a separate
-    size: 200x400                               # window.
-    position: 600x300
+    size: 200,400                               # window.
+    position: 600,300
     vim
