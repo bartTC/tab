@@ -94,7 +94,7 @@ from time import sleep
 from subprocess import Popen, PIPE
 from optparse import OptionParser, OptionGroup
 
-version = 1.1.1
+version = 1.2
 wd = os.getcwd()
 
 description = """tab - Opens a new OS X Terminal window with the current
