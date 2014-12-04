@@ -5,7 +5,7 @@ long_description = open('README').read()
 
 setup(
     name='tab-osx',
-    version='1.2',
+    version='1.3',
     description='Opens a new OS X Terminal window in the current directory and '
         'runs an optional command in it.',
     long_description=long_description,
