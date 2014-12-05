@@ -94,7 +94,7 @@ from time import sleep
 from subprocess import Popen, PIPE
 from optparse import OptionParser, OptionGroup
 
-version = "1.3"
+version = "1.4"
 wd = os.getcwd()
 
 description = """tab - Opens a new OS X Terminal window with the current
@@ -104,27 +104,18 @@ executed instead (see file for directions)."""
 
 usage = "Usage: %prog [options] cmd1 cmd2"
 
-# -----------------------------------------------------------------------------
-# Options
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-parser = OptionParser(usage=usage, description=description, version="%prog " + version)
-parser.add_option("-n", dest="name", help="Name of the new tab: e.g. \"Vim Editor\"")
-parser.add_option("-t", dest="tabfile", help="Path to tabfile")
+class Options(dict):
+    """
+    Allow dot notation for a dict so we're in line with the options
+    coming from optpars.
+    """
+    def __getattr__(self, attr):
+         return self.get(attr)
 
-group = OptionGroup(parser, "Window mode")
-group.add_option("-w", action="store_true", dest="window",
-    help="Open a new window instead of a tab")
-group.add_option("-p", dest="position",
-    help="Position of the new window in the format 400,200")
-group.add_option("-s", dest="size",
-    help="Size of the new window in the format 800x,600")
-
-parser.add_option_group(group)
-
-(options, args) = parser.parse_args()
-
-# -----------------------------------------------------------------------------
+    __setattr__= dict.__setitem__
+    __delattr__= dict.__delitem__
 
 def osascript(scpt, args=[]):
      p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -132,11 +123,11 @@ def osascript(scpt, args=[]):
      return stdout, stderr
 
 def get_config_items(config, groupname):
-    options = {}
+    options = Options()
     commands = []
     for n in config.items(groupname):
         if n[0] in ('name', 'size', 'position'):
-            options[n[0]] = n[1]
+            setattr(options[0], n[1])
         elif n[0] == None:
             continue
         else:
@@ -174,57 +165,102 @@ def opentab(window, scriptargs):
     if stderr:
         sys.stderr.write('Error in Applescript: {}\n'.format(stderr))
 
-# -----------------------------------------------------------------------------
-# Tabfile
-# -----------------------------------------------------------------------------
+def tab(options, args):
+    # --------------------------------------------------------------------------
+    # Tabfile
+    # --------------------------------------------------------------------------
+    tabfile = None
+    local_tabfile = os.path.join(wd, '.tabfile')
 
-tabfile = None
-local_tabfile = os.path.join(wd, '.tabfile')
+    if options.tabfile:
+        if not os.path.isfile(options.tabfile):
+            sys.stderr.write('Tabfile "{}" does not exist.\n'.format(options.tabfile))
+            sys.exit()
+        tabfile = options.tabfile
+    elif os.path.isfile(local_tabfile):
+        tabfile = local_tabfile
 
-if options.tabfile:
-    if not os.path.isfile(options.tabfile):
-        sys.stderr.write('Tabfile "{}" does not exist.\n'.format(options.tabfile))
-        sys.exit()
-    tabfile = options.tabfile
-elif os.path.isfile(local_tabfile):
-    tabfile = local_tabfile
+    if tabfile:
+        scripts = []
+        config = configparser.ConfigParser(delimiters=('=',), allow_no_value=True)
+        try:
+            config.read(tabfile)
+        except ConfigParser.ParsingError as e:
+            sys.stderr.write('Tabfile seem to be broken. Error was: {}\n'.format(e))
+            sys.exit()
 
-if tabfile:
-    scripts = []
-    config = configparser.ConfigParser(delimiters=('=',), allow_no_value=True)
-    try:
-        config.read(tabfile)
-    except ConfigParser.ParsingError as e:
-        sys.stderr.write('Tabfile seem to be broken. Error was: {}\n'.format(e))
-        sys.exit()
+        sys.stdout.write('Found tabfile in {}n'.format(tabfile))
 
-    sys.stdout.write('Found tabfile in {}n'.format(tabfile))
+        for groupname in config.sections():
+            options, cmds = get_config_items(config, groupname)
+            scriptargs = {
+                'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name) or '',
+                'position': options.position and 'set position of window 1 to {{{}}}'.format(options.position) or '',
+                'size': options.size and 'set size of window 1 to {{{}}}'.format(options.size) or '',
+                'wd': wd,
+            }
+            if cmds:
+                scriptargs['commands'] = '\n'.join(['do script with command "{}" in window 1'.format(a) for a in cmds])
 
-    for groupname in config.sections():
-        options, cmds = get_config_items(config, groupname)
+            window = groupname.startswith('window')
+            sleep(1)  # Applescript gets irritated if you do too much at once
+            opentab(window, scriptargs)
+
+    # --------------------------------------------------------------------------
+    # Manual handling
+    # --------------------------------------------------------------------------
+    else:
         scriptargs = {
-            'name': options.get('name') and 'set custom title of window 1 to "{}"'.format(options['name']) or '',
-            'position': options.get('position') and 'set position of window 1 to {{{}}}'.format(options['position']) or '',
-            'size': options.get('size') and 'set size of window 1 to {{{}}}'.format(options['size']) or '',
+            'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name) or '',
+            'position': options.position and 'set position of window 1 to {{{}}}'.format(options.position) or '',
+            'size': options.size and 'set size of window 1 to {{{}}}'.format(options.size) or '',
             'wd': wd,
+            'commands': '\n'.join(['do script with command "{}" in window 1'.format(a) for a in args])
         }
-        if cmds:
-            scriptargs['commands'] = '\n'.join(['do script with command "{}" in window 1'.format(a) for a in cmds])
+        opentab(options.window, scriptargs)
 
-        window = groupname.startswith('window')
-        sleep(1)  # Applescript gets irritated if you do too much at once
-        opentab(window, scriptargs)
+# ------------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
-# Manual handling
-# -----------------------------------------------------------------------------
+def run_testsuite():
+    sys.stdout.write('Test run, will open a couple of new windows and tabs\n')
+    tab(Options(name="New empty tab"), [])
+    tab(Options(name="Tab with ls"), ['ls'])
+    tab(Options(name="1", position='100,100', size='300,100', window=True), [])
+    tab(Options(name="2", position='400,100', size='300,100', window=True), [])
+    tab(Options(name="3", position='100,200', size='300,100', window=True), [])
+    tab(Options(name="4", position='400,200', size='300,100', window=True), [])
+    tab(Options(name="5", position='100,300', size='600,300', window=True), ['ls -la'])
 
-else:
-    scriptargs = {
-        'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name) or '',
-        'position': options.position and 'set position of window 1 to {{{}}}'.format(options.position) or '',
-        'size': options.size and 'set size of window 1 to {{{}}}'.format(options.size) or '',
-        'wd': wd,
-        'commands': '\n'.join(['do script with command "" in window 1'.format(a) for a in args])
-    }
-    opentab(options.window, scriptargs)
+# ------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+    parser = OptionParser(usage=usage, description=description, version="%prog " + version)
+    parser.add_option("-n", dest="name", help="Name of the new tab: e.g. \"Vim Editor\"")
+    parser.add_option("-t", dest="tabfile", help="Path to tabfile")
+
+    group = OptionGroup(parser, "Window mode")
+    group.add_option("-w", action="store_true", dest="window", help="Open a new window instead of a tab")
+    group.add_option("-p", dest="position", help="Position of the new window in the format 400,200")
+    group.add_option("-s", dest="size", help="Size of the new window in the format 800x,600")
+    group.add_option("--testsuite", action="store_true", dest="test", help="Run a test suite to "
+        "demonstrate and test various options.")
+    parser.add_option_group(group)
+
+    options, args = parser.parse_args()
+
+    # Some input validation for -w and -p syntax
+    if options.position and not re.match(r'\d+,\d+', options.position):
+        sys.stderr.write("Error! The 'position' argument must be in the  format x,y (e.g 400,200)\n")
+        sys.exit(1)
+
+    if options.size and not re.match(r'\d+,\d+', options.size):
+        sys.stderr.write("Error! The 'size' argument must be in the  format x,y (e.g 400,200)\n")
+        sys.exit(1)
+
+    # -----------------------------------------------------------------------------
+
+    if options.test:
+        run_testsuite()
+    else:
+        tab(options, args)
+
