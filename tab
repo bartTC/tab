@@ -140,7 +140,7 @@ def get_config_items(config, groupname):
     commands = []
     for n in config.items(groupname):
         if n[0] in ('name', 'size', 'position'):
-            setattr(options[0], n[1])
+            setattr(options,n[0], n[1])
         elif n[0] == None:
             continue
         else:
