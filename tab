@@ -207,7 +207,7 @@ def tab(options, args):
         for groupname in config.sections():
             options, cmds = get_config_items(config, groupname)
             scriptargs = {
-                'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name) or '',
+                'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name.replace('"', '\\"')) or '',
                 'position': options.position and 'set position of window 1 to {{{}}}'.format(options.position) or '',
                 'size': options.size and 'set size of window 1 to {{{}}}'.format(options.size) or '',
                 'wd': wd,
@@ -224,7 +224,7 @@ def tab(options, args):
     # --------------------------------------------------------------------------
     else:
         scriptargs = {
-            'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name) or '',
+            'name': options.name and 'set custom title of window 1 to "{}"'.format(options.name.replace('"', '\\"')) or '',
             'position': options.position and 'set position of window 1 to {{{}}}'.format(options.position) or '',
             'size': options.size and 'set size of window 1 to {{{}}}'.format(options.size) or '',
             'wd': wd,
