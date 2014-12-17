@@ -87,6 +87,7 @@ are commands which will be executed.
     gulp watch
 
     [tab:2]                                 # Django Project
+    name=This is the runserver tab
     source ~/myproject/bin/activate
     manage.py runserver                     # Start the server
 
@@ -95,8 +96,9 @@ are commands which will be executed.
     clear                                   # and have a blank tab to work in
 
     [window:1]                              # Vim Editor in a separate
-    size: 200,400                           # window.
-    position: 600,300
+    name=The editor window                  # window.
+    size=200,400
+    position=600,300
     vim
 """
 
@@ -174,7 +176,6 @@ def opentab(window, scriptargs):
         end tell
         """
     stdout, stderr = osascript(script.format(**scriptargs))
-
     if stderr:
         sys.stderr.write('Error in Applescript: {}\n'.format(stderr))
 
